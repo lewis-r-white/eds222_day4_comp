@@ -76,11 +76,14 @@ dog_choice <- tribble(
 )
 
 dog_menu <- function(name) {
-  my_sub <- filter(data = dog_choice, dog_name == name)
+  my_sub <- filter(.data = dog_choice, dog_name == name)
   print(paste("My name is", my_sub$dog_name, "and my favorite food is", my_sub[,2]))
 }
 
-dog_menu(name = "Khora")
+dog_menu("Khora")
+
+
+
 ```
 
 
@@ -101,5 +104,148 @@ means_over_columns(df = faithful)
 ```
 
 
+## Example nested for loop
+
+```{r}
+clothing <- c("Shirt", "pants", "shoes")
+color <- c("purple", "red", "blue", "white")
+
+our_clothes <- matrix(nrow = length(color), ncol = length(clothing))
+
+for (i in seq_along(clothing)) {
+  for (j in seq_along(color)) {
+    clothing_details <- paste(color[j], clothing[i])
+    our_clothes[j,i] <- clothing_details
+  }
+}
+```
+
+
+```{r}
+sharks <- c("hammerhead", "great white", "thresher", "megladon")
+snack <- c("tutle", "human", "golfish")
+
+shark_snacks_df <- matrix(nrow = length(snack), ncol= length(sharks))
+
+for (i in seq_along(sharks)) {
+  for (j in seq_along(snack)) {
+    sentence <- paste(sharks[i], "eat lots of", snack[j])
+    shark_snacks_df[j, i] <- sentence
+  }
+}
+```
+
+
+## Logistic growth
+
+Modeling a population over tume and varying growth rate 
+
+```{r}
+orange_rainbow_function <- function(oranges, rainbows) {
+  (oranges * rainbows / 2.4)^2
+}
+
+#shortcut to create function =  command + option + x
+```
+
+
+```{r}
+logistic_growth <- function(K, N0, r, time) {
+  K / (1 + ((K - N0) / N0) * exp(-r * time))
+}
+
+#TEST
+logistic_growth(K = 5000, N0 = 100, r = 0.07, time = 42)
+```
+
+```{r}
+time_vec <- seq(from = 0, to = 400, by = 1)
+
+pop_35 <- logistic_growth(N0 = 40, K = 8000, r = 0.05, time = time_vec)
+pop_35
+
+pop_time35_df <- data.frame(time_vec, pop_35)
+
+ggplot(data = pop_time35_df, aes(x = time_vec, y = pop_35)) +
+  geom_line()
+```
+
+
+```{r}
+pop_35_vec <- vector(mode = "numeric", length = length(time_vec))
+
+for (i in seq_along(time_vec)) {
+  population <- logistic_growth(K = 6000, N0 = 300, r = 0.06, time = time_vec[i])
+  pop_35_vec[i] <- population
+}
+ 
+```
+
+## Now extend this to iterate over multiple growth rates
+
+```{r}
+r_seq <- seq(from = 0.01, to = 0.5, by = 0.05)
+```
+
+```{r}
+out_matrix <- matrix(nrow = length(time_vec), ncol = length(r_seq))
+
+for (i in seq_along(r_seq)) {
+  for (j in seq_along(time_vec)) {
+    pop <- logistic_growth(K = 6000, N0 = 300, r = r_seq[i], time = time_vec[j])
+    out_matrix[j,i] <- pop
+  }
+}
+
+### now some wrangling!!
+
+logistic_df <- data.frame(time = time_vec, out_matrix) 
+
+colnames(logistic_df) <- c(paste0("gr_", r_seq), "time")
+
+
+logistic_df_long <- logistic_df %>%
+  pivot_longer(cols = -time, values_to = "population", names_to = "growth_rate")
+  
+```
+
+
+```{r}
+ggplot(data = logistic_df_long, aes(x = time, y = population)) + 
+  geom_line(aes(color = growth_rate))
+```
+
+Use `stop` to add an error
+
+
+
+$$
+P = 0.3\rho A v^3
+$$
+
+Rho: air density (kg / m^3)
+A: area covered by turbine (square meters)
+V: wind velocity (m/s)
+
+```{r}
+calc_windpower <- function(rho, radius, windspeed) {
+  
+  if (windspeed > 130) {
+    warning("Whoa, thant's really fast ~ are you sure?")
+  }
+  
+  if (rho > 1.225) {
+    warning("That air density is sus")
+  }
+  
+  if (radius < 0) {
+    stop("radius must be positive")
+  }
+  
+  0.3 * rho * pi * (radius^2) * (windspeed^3)
+}
+
+calc_windpower(rho = 2.225, radius = 1, 20)
+```
 
 
