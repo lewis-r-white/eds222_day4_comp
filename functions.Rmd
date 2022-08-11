@@ -1,0 +1,105 @@
+---
+title: "eds 221 day 4"
+author: "Lewis White"
+date: "2022-08-11"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+```
+
+
+## INTRO TO FUNCTIONS
+
+```{r}
+quarter_splits <- c(1.0, 1.1, 1.2, 1.1, 1.4, 1.5, 1.6, 1.4)
+
+qs_vec <- vector(mode = "numeric", length = length(quarter_splits))
+
+for (i in seq_along(quarter_splits)) {
+  consecuative_sum = quarter_splits[i] + quarter_splits[i + 1]
+  qs_vec[i] <- consecuative_sum
+}
+```
+
+
+```{r}
+convert_animal_age <- function(animal, human_age) {
+  if (animal == "dog") {
+    print(human_age * 7)
+  } else if (animal == "goat") {
+    print(human_age * 4.7)
+  } else {
+    print("Pick again, sucker!")
+  } 
+}
+
+convert_animal_age(animal = "cow", human_age = 10)
+convert_animal_age(animal = "goat", human_age = 10)
+```
+
+make a function to double the user input
+
+```{r}
+double_this <- function(my_value) {
+  print(2 * my_value)
+}
+
+double_this(my_value = 200)
+double_this(40)
+
+double_this(c(1, 3, 4, 9, 139))
+```
+
+your turn: write a function that asks for users name and age, and returns an exclamation like "I'm name and I am age years old
+
+```{r}
+intro <- function(name, age) {
+  print(paste("I'm", name, "and I am", age, "years old!"))
+}
+
+intro(name = "Lana",age = 31)
+```
+
+make a function using a dataframe
+
+```{r}
+dog_choice <- tribble(
+  ~dog_name, ~food,
+  "Khora", "everything",
+  "Teddy", "salmon",
+  "Waffle", "pancakes",
+  "Banjo", "chicken"
+)
+
+dog_menu <- function(name) {
+  my_sub <- filter(data = dog_choice, dog_name == name)
+  print(paste("My name is", my_sub$dog_name, "and my favorite food is", my_sub[,2]))
+}
+
+dog_menu(name = "Khora")
+```
+
+
+## functions meet for loops 
+
+```{r}
+means_over_columns <- function(df) {
+  for (i in seq_along(df)) {
+    col_mean <- mean(df[[i]], na.rm = TRUE)
+    column_name <- colnames(df[i])
+    print(paste("The mean value of", column_name, "is", col_mean))
+  }
+}
+
+means_over_columns(df = mtcars)
+means_over_columns(df = faithful)
+
+```
+
+
+
+
